@@ -159,6 +159,7 @@ int handle_trace_rsc(struct remote_proc *rproc, void *rsc)
 	(void)rproc;
 	(void)rsc;
 
+	return 0;
 	return RPROC_ERR_RSC_TAB_NS;
 }
 
