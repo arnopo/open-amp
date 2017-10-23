@@ -98,7 +98,7 @@ struct hil_proc *hil_create_proc(struct hil_platform_ops *ops,
 	memset(proc, 0, sizeof(struct hil_proc));
 
 	proc->ops = ops;
-	proc->num_chnls = 1;
+	proc->num_chnls = 0;
 	proc->cpu_id = cpu_id;
 	proc->pdata = pdata;
 
@@ -641,6 +641,8 @@ int hil_set_rpmsg_channel (struct hil_proc *proc, int index,
 	if (index >= HIL_MAX_NUM_CHANNELS)
 		return -1;
 	strcpy(proc->chnls[index].name, name);
+	if(proc->num_chnls < index + 1)
+		proc->num_chnls = index + 1;
 	return 0;
 }
 
