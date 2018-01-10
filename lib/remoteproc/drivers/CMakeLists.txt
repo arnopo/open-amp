@@ -11,6 +11,11 @@ if ("${MACHINE}" STREQUAL "zynqmp")
   collect (PROJECT_LIB_SOURCES zynqmp_remoteproc_r5.c)
 endif ("${MACHINE}" STREQUAL "zynqmp")
 
+if ("${MACHINE}" STREQUAL "cortexm")
+  collect (PROJECT_LIB_SOURCES remoteproc_cortexm.c)
+endif ("${MACHINE}" STREQUAL "cortexm")
+
 if ("${PROJECT_SYSTEM}" STREQUAL "linux")
   collect (PROJECT_LIB_SOURCES linux_remoteproc.c)
 endif ("${PROJECT_SYSTEM}" STREQUAL "linux")
+
