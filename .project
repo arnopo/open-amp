@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>open_amp-Debug@open-amp</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.cdt.make.core.makeBuilder</name>
+			<triggers>clean,full,incremental,</triggers>
+			<arguments>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>
+					<value>clean</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.enableCleanBuild</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.append_environment</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.stopOnError</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.enabledIncrementalBuild</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.command</key>
+					<value>/usr/bin/make</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.contents</key>
+					<value>org.eclipse.cdt.make.core.activeConfigSettings</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.target.inc</key>
+					<value>all</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.arguments</key>
+					<value>-j4</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.buildLocation</key>
+					<value>.</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.useDefaultBuildCmd</key>
+					<value>false</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.environment</key>
+					<value>VERBOSE=1|CMAKE_NO_VERBOSE=1|</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.enableFullBuild</key>
+					<value>true</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.target.auto</key>
+					<value>all</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.enableAutoBuild</key>
+					<value>false</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.target.clean</key>
+					<value>clean</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.fullBuildTarget</key>
+					<value>all</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.buildArguments</key>
+					<value></value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.build.location</key>
+					<value>.</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.make.core.autoBuildTarget</key>
+					<value>all</value>
+				</dictionary>
+				<dictionary>
+					<key>org.eclipse.cdt.core.errorOutputParser</key>
+					<value>org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser;</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.cdt.make.core.ScannerConfigBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.cdt.make.core.makeNature</nature>
+		<nature>org.eclipse.cdt.make.core.ScannerConfigNature</nature>
+		<nature>org.eclipse.cdt.core.cnature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>[Subprojects]</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/hil.c</name>
+			<type>1</type>
+			<location>./lib/common/hil.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/sh_mem.c</name>
+			<type>1</type>
+			<location>./lib/common/sh_mem.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/firmware.c</name>
+			<type>1</type>
+			<location>./lib/common/firmware.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/virtio.c</name>
+			<type>1</type>
+			<location>./lib/virtio/virtio.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/virtqueue.c</name>
+			<type>1</type>
+			<location>./lib/virtio/virtqueue.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/remote_device.c</name>
+			<type>1</type>
+			<location>./lib/rpmsg/remote_device.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/rpmsg.c</name>
+			<type>1</type>
+			<location>./lib/rpmsg/rpmsg.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/rpmsg_core.c</name>
+			<type>1</type>
+			<location>./lib/rpmsg/rpmsg_core.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/elf_loader.c</name>
+			<type>1</type>
+			<location>./lib/remoteproc/elf_loader.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/remoteproc.c</name>
+			<type>1</type>
+			<location>./lib/remoteproc/remoteproc.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/remoteproc_loader.c</name>
+			<type>1</type>
+			<location>./lib/remoteproc/remoteproc_loader.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/rsc_table_parser.c</name>
+			<type>1</type>
+			<location>./lib/remoteproc/rsc_table_parser.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/remoteproc_cortexm.c</name>
+			<type>1</type>
+			<location>./lib/remoteproc/drivers/remoteproc_cortexm.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Source Files/rpmsg_retarget.c</name>
+			<type>1</type>
+			<location>./lib/proxy/rpmsg_retarget.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Header Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/CMake Rules</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Resources</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[lib] open_amp-static/Object Files</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>
