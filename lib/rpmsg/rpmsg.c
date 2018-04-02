@@ -425,17 +425,6 @@ struct rpmsg_endpoint *rpmsg_create_ept(struct rpmsg_channel *rp_chnl,
 		rp_ept->rp_chnl = rp_chnl;
 	}
 
-	rp_chnl->rp_ept = rp_ept;
-	rp_chnl->src = rp_ept->addr;
-	rp_chnl->state = RPMSG_CHNL_STATE_NS;
-
-	/* Notify the application of channel creation event */
-	if (rdev->channel_created) {
-		rdev->channel_created(rp_chnl);
-	}
-
-	/* Send NS announcement to remote processor */
-	rpmsg_send_ns_message(rdev, rp_chnl, RPMSG_NS_CREATE);
 	return rp_ept;
 }
 
@@ -495,7 +484,6 @@ struct rpmsg_channel *rpmsg_create_channel(struct remote_device *rdev,
 		return RPMSG_NULL;
 	}
 
-#if 0
 	/* Create default endpoint for the channel */
 	rp_ept = rpmsg_create_ept(rp_chnl, rdev->default_cb, rdev,
 				  RPMSG_ADDR_ANY);
@@ -516,9 +504,7 @@ struct rpmsg_channel *rpmsg_create_channel(struct remote_device *rdev,
 
 	/* Send NS announcement to remote processor */
 	rpmsg_send_ns_message(rdev, rp_chnl, RPMSG_NS_CREATE);
-#else
-	rp_chnl->state = RPMSG_CHNL_STATE_IDLE;
-#endif
+
 	return rp_chnl;
 }
 
