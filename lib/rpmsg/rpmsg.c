@@ -201,7 +201,7 @@ int rpmsg_send_offchannel_raw(struct rpmsg_channel *rp_chnl, uint32_t src,
 	io = rdev->proc->sh_buff.io;
 	metal_io_block_write(io,
 			metal_io_virt_to_offset(io, buffer),
-			&rp_hdr, sizeof(rp_hdr));
+			(char*)&rp_hdr, sizeof(rp_hdr));
 	metal_io_block_write(io,
 			metal_io_virt_to_offset(io, RPMSG_LOCATE_DATA(buffer)),
 			data, size);

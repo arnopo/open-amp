@@ -327,10 +327,10 @@ int rpmsg_send_ns_message(struct remote_device *rdev,
 
 	io = rdev->proc->sh_buff.io;
 	metal_io_block_write(io, metal_io_virt_to_offset(io, shbuf),
-			&rp_hdr, sizeof(rp_hdr));
+			(char*)&rp_hdr, sizeof(rp_hdr));
 	metal_io_block_write(io,
 			metal_io_virt_to_offset(io, RPMSG_LOCATE_DATA(shbuf)),
-			&ns_msg, rp_hdr.len);
+			(char*)&ns_msg, rp_hdr.len);
 
 	/* Place the buffer on virtqueue. */
 	rpmsg_enqueue_buffer(rdev, shbuf, len, idx);
