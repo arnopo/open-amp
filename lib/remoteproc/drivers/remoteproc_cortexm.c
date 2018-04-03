@@ -87,7 +87,7 @@ static void _release_shm(struct hil_proc *proc,
 			struct metal_io_region *io);
 
 /*--------------------------- Globals ---------------------------------- */
-struct hil_platform_ops stm32mp1_proc_ops = {
+struct hil_platform_ops cortexm_proc_ops = {
 	.enable_interrupt     = _enable_interrupt,
 	.notify               = _notify,
 	.boot_cpu             = _boot_cpu,
