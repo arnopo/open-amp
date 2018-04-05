@@ -102,7 +102,7 @@ struct hil_platform_ops cortexm_proc_ops = {
 
 static int _enable_interrupt(struct proc_intr *intr)
 {
-	printf("Vector Id: %d Registered \n\r", intr->vect_id );
+	openamp_print("Vector Id: %d Registered \n\r", intr->vect_id );
 	(void)intr;
 	return 0;
 }
@@ -163,7 +163,7 @@ static int _initialize(struct hil_proc *proc)
 		if (ret)
 			return -ENODEV;
 		ipi->io = metal_device_io_region(ipi->dev, 0);
-	} else if (ipi->paddr) {
+	} else if (ipi && ipi->paddr) {
 		ipi->io = metal_allocate_memory(
 			sizeof(struct metal_io_region));
 		if (!ipi->io)
