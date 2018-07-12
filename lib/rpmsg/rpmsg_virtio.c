@@ -481,8 +481,8 @@ static int rpmsg_virtio_ns_callback(struct rpmsg_endpoint *ept, void *data,
 		if (_ept)
 			_ept->dest_addr = RPMSG_ADDR_ANY;
 		metal_mutex_release(&rdev->lock);
-		if (_ept && _ept->destroy_cb)
-			ept->destroy_cb(ept);
+		if (_ept && _ept->unbind_cb)
+			_ept->unbind_cb(ept);
 	} else {
 		if (!_ept) {
 			/*
