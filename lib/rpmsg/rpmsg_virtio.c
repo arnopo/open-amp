@@ -233,7 +233,6 @@ static int rpmsg_virtio_wait_remote_ready(struct rpmsg_virtio_device *rvdev)
 		metal_cpu_yield();
 	}
 
-	return false;
 }
 #endif /*!VIRTIO_MASTER_ONLY*/
 
