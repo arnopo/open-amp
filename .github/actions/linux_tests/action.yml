@@ -1,0 +1,13 @@
+# action.yml
+name: 'Linux non regeression tests'
+description: 'OpenAMp library non regeression tests on Linux platform'
+inputs:
+  who-to-greet:  # id of input
+    description: 'Who to greet'
+    required: false
+    default: 'World'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.who-to-greet }}

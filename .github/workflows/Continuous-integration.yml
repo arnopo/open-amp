@@ -1,0 +1,55 @@
+name: open-amp lib Continuous Integration
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - docs/**
+      - cmake/**
+      - scripts/**
+  pull_request:
+    branches: [ master ]
+    paths-ignore:
+      - docs/**
+      - cmake/**
+      - scripts/**
+
+jobs:
+  checkpatch_review:
+    name: checkpatch review
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run checkpatch review
+      uses: webispy/checkpatch-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  nr_test:
+    runs-on: ubuntu-latest
+    name: non regression tests
+    steps:
+      # First of all, clone the repo using the checkout action.
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Checkout libmetal repo
+      uses: actions/checkout@v2
+      with:
+        repository: OpenAMP/libmetal
+        path: libmetal
+#    - name: configure
+#       run: |
+#         sudo apt-get update && sudo apt-get install libsysfs-dev
+#    - name: build
+#       run: |
+#        cd libmetal
+#        cmake . -Bbuild 
+#        cd build
+#        make
+#        cd ../..
+#        cmake . -DWITH_APPS=on -Bbuild -DCMAKE_INCLUDE_PATH="./libmetal/build/lib/include" -DCMAKE_LIBRARY_PATH="./libmetal/build/lib"
+#        cd build
+ #       make install DESTDIR=./bin       
+    - name: linux_tests
+      id: nr_test
+      uses: ./.github/actions/linux_tests

@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
 
 	LPRINTF("Starting application...\r\n");
 
+	LPRINTF("%s: platform_init\r\n", __func__);
 	/* Initialize platform */
 	ret = platform_init(argc, argv, &platform);
 	if (ret) {

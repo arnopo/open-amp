@@ -175,11 +175,13 @@ int main(int argc, char *argv[])
 	int ret;
 
 	/* Initialize platform */
+	metal_log(METAL_LOG_ERROR, "%s: platform_init\r\n", __func__);
 	ret = platform_init(argc, argv, &platform);
 	if (ret) {
 		LPERROR("Failed to initialize platform.\r\n");
 		ret = -1;
 	} else {
+	LPRINTF("RPMSG endpoint is binded with remote.\r\n");
 		rpdev = platform_create_rpmsg_vdev(platform, 0,
 						  VIRTIO_DEV_MASTER,
 						  NULL,
