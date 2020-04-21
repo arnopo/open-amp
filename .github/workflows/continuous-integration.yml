@@ -24,3 +24,15 @@ jobs:
       uses: webispy/checkpatch-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  gitlint:
+    name: gitlint check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Lint
+        run: |
+          sudo apt-get update && sudo apt-get install gitlint
+          git log -3
+          gitlint --help
+          gitlint --commits HEAD~2
