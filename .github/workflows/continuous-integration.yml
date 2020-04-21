@@ -24,3 +24,24 @@ jobs:
       uses: webispy/checkpatch-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  gitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        # checkout code before linting
+        uses: actions/checkout@v2
+        with:
+          # fetch 20 commits (increase it if needed)
+          fetch-depth: '20'
+      - name: Lint
+        run: |
+          sudo apt-get update && sudo apt-get install gitlint
+          gitlint
+        # run linter (use latest version here)
+        #uses: g4s8/gitlint-action@0.2
+        #with:
+          # see `inputs` section for more details
+          #since: "2020-03-30"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
