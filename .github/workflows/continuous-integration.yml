@@ -29,10 +29,24 @@ jobs:
     name: gitlint check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Lint
+      - uses: actions/checkout@v2
+      - name: run gitint
         run: |
+          ref=$(jq --raw-output .pull_request.head.ref "$GITHUB_EVENT_PATH")
+          owner=$(jq --raw-output .pull_request.head.repo.owner.login "$GITHUB_EVENT_PATH")
+          repo=$(jq --raw-output .pull_request.head.repo.name "$GITHUB_EVENT_PATH")
+          echo "ref ${ref} owner ${owner}  repo ${repo}"
           sudo apt-get update && sudo apt-get install gitlint
+          git log $(git merge-base master HEAD)..HEAD
           git log -3
-          gitlint --help
-          gitlint --commits HEAD~2
+          gitlint --commits $(git merge-base master HEAD)..HEAD
+
+  gitlint2:
+    name: gitlint2 check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: igordcsouza/github-action-get-branch-name@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      - name: Set branch name as VARIABLE_NAME
+        run: echo ::set-env name=VARIABLE_NAME::${BRANCH_NAME}
