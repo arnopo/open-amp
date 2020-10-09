@@ -20,7 +20,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Run checkpatch review
-      uses: webispy/checkpatch-action@master
+    - name: Install python dependencies
+      run: |
+        pip3 install setuptools
+        pip3 install junitparser gitlint
+    - name: Run Compliance Tests
+      id: compliance
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BASE_REF: ${{ github.base_ref }}
+      run: |
+        export PATH=$PATH:~/.local/bin
+        export PROJECT_BASE=$PWD
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+        git rebase origin/${BASE_REF}
+        export
+        ./scripts/ci/check_compliance.py -m checkpatch  -m Gitlint -m Identity -c origin/${BASE_REF}..
