@@ -35,7 +35,6 @@ static const struct virtio_feature_desc virtio_common_feature_desc[] = {
 	{VIRTIO_RING_F_INDIRECT_DESC, "RingIndirect"},
 	{VIRTIO_RING_F_EVENT_IDX, "EventIdx"},
 	{VIRTIO_F_BAD_FEATURE, "BadFeature"},
-
 	{0, NULL}
 };
 
