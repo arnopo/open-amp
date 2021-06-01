@@ -180,6 +180,34 @@ static int handle_write(struct rpmsg_rpc_syscall *syscall,
 	return ret > 0 ?  0 : ret;
 }
 
+static int handle_scanf(struct rpmsg_rpc_syscall *syscall,
+			struct rpmsg_endpoint *ept)
+{
+	struct rpmsg_rpc_syscall *resp;
+	unsigned char buf[RPC_BUFF_SIZE];
+	unsigned char *payload;
+	int bytes_read, payload_size;
+	int ret;
+
+	if (!syscall || !ept)
+		return -EINVAL;
+	payload = buf + sizeof(*resp);
+	scanf("%s", payload);
+	bytes_read = sizeof(payload);
+	/* Construct rpc response */
+	resp = (struct rpmsg_rpc_syscall *)buf;
+	resp->id = SCAN_SYSCALL_ID;
+	resp->args.int_field1 = bytes_read;
+	resp->args.int_field2 = 0;	/* not used */
+	resp->args.data_len = bytes_read;
+
+	payload_size = sizeof(*resp) +
+		       ((bytes_read > 0) ? bytes_read : 0);
+	/* Transmit rpc response */
+	ret = rpmsg_send(ept, buf, payload_size);
+	return ret > 0 ?  0 : ret;
+}
+
 static int handle_rpc(struct rpmsg_rpc_syscall *syscall,
 		      struct rpmsg_endpoint *ept)
 {
@@ -212,6 +240,11 @@ static int handle_rpc(struct rpmsg_rpc_syscall *syscall,
 			LPRINTF("Received termination request\r\n");
 			request_termination = 1;
 			retval = 0;
+			break;
+		}
+	case SCAN_SYSCALL_ID:
+		{
+			retval = handle_scanf(syscall, ept);
 			break;
 		}
 	default:
@@ -374,4 +407,3 @@ int main(int argc, char *argv[])
 
 	return ret;
 }
-

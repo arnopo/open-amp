@@ -18,7 +18,7 @@ collector_list (_deps PROJECT_LIB_DEPS)
 set (OPENAMP_LIB open_amp)
 
 if (${PROJECT_SYSTEM} STREQUAL "linux")
-  set (app_list rpc_demod)
+  set (app_list rpc_demod rpc_demo)
 else (${PROJECT_SYSTEM})
   set (app_list rpc_demo)
 endif (${PROJECT_SYSTEM} STREQUAL "linux")

@@ -25,7 +25,7 @@
 #define REDEF_O_APPEND  0002000
 #define REDEF_O_ACCMODE 0000003
 
-#define LPRINTF(format, ...) xil_printf(format, ##__VA_ARGS__)
+#define LPRINTF(format, ...) printf(format, ##__VA_ARGS__)
 //#define LPRINTF(format, ...)
 #define LPERROR(format, ...) LPRINTF("ERROR: " format, ##__VA_ARGS__)
 
@@ -47,8 +47,8 @@ int app(struct rpmsg_device *rdev, void *priv)
 	char wbuff[50];
 	char rbuff[1024];
 	char ubuff[50];
-	float fdata;
-	int idata;
+	char fdata[50];
+	char idata[50];
 	int ret;
 
 	/* redirect I/Os */
@@ -62,7 +62,7 @@ int app(struct rpmsg_device *rdev, void *priv)
 		return -1;
 	}
 
-	printf("\nRemote>Baremetal Remote Procedure Call (RPC) Demonstration\r\n");
+	printf("\nRemote>Remote Procedure Call (RPC) Demonstration\r\n");
 	printf("\nRemote>***************************************************\r\n");
 
 	printf("\nRemote>Rpmsg based retargetting to proxy initialized..\r\n");
@@ -71,26 +71,26 @@ int app(struct rpmsg_device *rdev, void *priv)
 	printf("\nRemote>FileIO demo ..\r\n");
 
 	printf("\nRemote>Creating a file on master and writing to it..\r\n");
-	fd = open(fname, REDEF_O_CREAT | REDEF_O_WRONLY | REDEF_O_APPEND,
-		  S_IRUSR | S_IWUSR);
+	fd = _open(fname, REDEF_O_CREAT | REDEF_O_WRONLY | REDEF_O_APPEND,
+		   S_IRUSR | S_IWUSR);
 	printf("\nRemote>Opened file '%s' with fd = %d\r\n", fname, fd);
 
 	sprintf(wbuff, "This is a test string being written to file..");
-	bytes_written = write(fd, wbuff, strlen(wbuff));
+	bytes_written = _write(fd, wbuff, strlen(wbuff));
 	printf("\nRemote>Wrote to fd = %d, size = %d, content = %s\r\n", fd,
 	       bytes_written, wbuff);
-	close(fd);
+	_close(fd);
 	printf("\nRemote>Closed fd = %d\r\n", fd);
 
 	/* Remote performing file IO on Master */
 	printf("\nRemote>Reading a file on master and displaying its contents..\r\n");
-	fd = open(fname, REDEF_O_RDONLY, S_IRUSR | S_IWUSR);
+	fd = _open(fname, REDEF_O_RDONLY, S_IRUSR | S_IWUSR);
 	printf("\nRemote>Opened file '%s' with fd = %d\r\n", fname, fd);
-	bytes_read = read(fd, rbuff, 1024);
+	bytes_read = _read(fd, rbuff, sizeof(rbuff));
 	*(char *)(&rbuff[0] + bytes_read + 1) = 0;
 	printf("\nRemote>Read from fd = %d, size = %d, printing contents below .. %s\r\n",
 		fd, bytes_read, rbuff);
-	close(fd);
+	_close(fd);
 	printf("\nRemote>Closed fd = %d\r\n", fd);
 
 	while (1) {
@@ -98,22 +98,22 @@ int app(struct rpmsg_device *rdev, void *priv)
 		printf("\nRemote>Remote firmware using scanf and printf ..\r\n");
 		printf("\nRemote>Scanning user input from master..\r\n");
 		printf("\nRemote>Enter name\r\n");
-		ret = scanf("%s", ubuff);
+		ret = _scanf(ubuff, sizeof(ubuff));
 		if (ret) {
 			printf("\nRemote>Enter age\r\n");
-			ret = scanf("%d", &idata);
+			ret = _scanf(idata, sizeof(idata));
 			if (ret) {
 				printf("\nRemote>Enter value for pi\r\n");
-				ret = scanf("%f", &fdata);
+				ret = _scanf(fdata, sizeof(fdata));
 				if (ret) {
 					printf("\nRemote>User name = '%s'\r\n", ubuff);
-					printf("\nRemote>User age = '%d'\r\n", idata);
-					printf("\nRemote>User entered value of pi = '%f'\r\n", fdata);
+					printf("\nRemote>User age = '%s'\r\n", idata);
+					printf("\nRemote>User entered value of pi = '%s'\r\n", fdata);
 				}
 			}
 		}
 		if (!ret) {
-			scanf("%s", ubuff);
+			_scanf(ubuff, sizeof(ubuff));
 			printf("Remote> Invalid value. Starting again....");
 		} else {
 			printf("\nRemote>Repeat demo ? (enter yes or no) \r\n");

@@ -22,6 +22,7 @@ extern "C" {
 #define WRITE_SYSCALL_ID 0x3UL
 #define READ_SYSCALL_ID  0x4UL
 #define ACK_STATUS_ID    0x5UL
+#define SCAN_SYSCALL_ID  0X7UL
 
 #define TERM_SYSCALL_ID  0x6UL
 

@@ -346,3 +346,58 @@ int _close(int fd)
 
 	return ret;
 }
+
+/*************************************************************************
+ *
+ *   FUNCTION
+ *
+ *       _scanf
+ *
+ *   DESCRIPTION
+ *
+ *       Low level function to redirect IO to serial.
+ *
+ *************************************************************************/
+int _scanf(char *buffer, int buflen)
+{
+	struct rpmsg_rpc_syscall syscall;
+	struct rpmsg_rpc_syscall *resp;
+	struct rpmsg_rpc_data *rpc = rpmsg_default_rpc;
+	int payload_size = sizeof(syscall);
+	unsigned char tmpbuf[MAX_BUF_LEN];
+	int ret;
+
+	if (!rpc || !buffer || buflen == 0)
+		return -EINVAL;
+
+	/* Construct rpc payload */
+	syscall.id = SCAN_SYSCALL_ID;
+	syscall.args.int_field1 = 0;	/*not used */
+	syscall.args.int_field2 = buflen;
+	syscall.args.data_len = 0;	/*not used */
+
+	resp = (struct rpmsg_rpc_syscall *)tmpbuf;
+	resp->id = 0;
+	ret = rpmsg_rpc_send(rpc, (void *)&syscall, payload_size,
+			     tmpbuf, sizeof(tmpbuf));
+
+	/* Obtain return args and return to caller */
+	if (ret >= 0) {
+		if (resp->id == SCAN_SYSCALL_ID) {
+			if (resp->args.int_field1 > 0) {
+				int tmplen = resp->args.data_len;
+				unsigned char *tmpptr = tmpbuf;
+
+				tmpptr += sizeof(*resp);
+				if (tmplen > buflen)
+					tmplen = buflen;
+				memcpy(buffer, tmpptr, tmplen);
+			}
+			ret = resp->args.int_field1;
+		} else {
+			ret = -EINVAL;
+		}
+	}
+
+	return ret;
+}
