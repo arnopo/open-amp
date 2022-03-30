@@ -48,7 +48,7 @@ int handle_rsc_table(struct remoteproc *rproc,
 		return -RPROC_ERR_RSC_TAB_TRUNC;
 	}
 
-	/* Reserved fields - must be zero */
+	/* Resrved filds - must be zero */
 	if (rsc_table->reserved[0] != 0 || rsc_table->reserved[1] != 0) {
 		return -RPROC_ERR_RSC_TAB_RSVD;
 	}
