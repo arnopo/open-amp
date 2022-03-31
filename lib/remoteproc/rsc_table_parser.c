@@ -135,7 +135,7 @@ int handle_vdev_rsc(struct remoteproc *rproc, void *rsc)
 	notifyid = vdev_rsc->notifyid;
 	notifyid = remoteproc_allocate_id(rproc,
 					  notifyid, notifyid + 1);
-	if (notifyid != RSC_NOTIFY_ID_ANY)
+	if(notifyid!= RSC_NOTIFY_ID_ANY)
 		vdev_rsc->notifyid = notifyid;
 
 	num_vrings = vdev_rsc->num_of_vrings;
