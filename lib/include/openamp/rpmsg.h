@@ -42,6 +42,7 @@ extern "C" {
 #define RPMSG_ERR_BUFF_SIZE		(RPMSG_ERROR_BASE - 5)
 #define RPMSG_ERR_INIT			(RPMSG_ERROR_BASE - 6)
 #define RPMSG_ERR_ADDR			(RPMSG_ERROR_BASE - 7)
+#define RPMSG_ERR_PERM			(RPMSG_ERROR_BASE - 8)
 
 struct rpmsg_endpoint;
 struct rpmsg_device;
@@ -87,6 +88,7 @@ struct rpmsg_endpoint {
  * @release_rx_buffer: release RPMsg RX buffer
  * @get_tx_payload_buffer: get RPMsg TX buffer
  * @send_offchannel_nocopy: send RPMsg data without copy
+ * @release_tx_buffer: release RPMsg TX buffer
  */
 struct rpmsg_device_ops {
 	int (*send_offchannel_raw)(struct rpmsg_device *rdev,
@@ -99,6 +101,7 @@ struct rpmsg_device_ops {
 	int (*send_offchannel_nocopy)(struct rpmsg_device *rdev,
 				      uint32_t src, uint32_t dst,
 				       const void *data, int len);
+	int (*release_tx_buffer)(struct rpmsg_device *rdev, void *rxbuf);
 };
 
 /**
@@ -325,7 +328,10 @@ void rpmsg_release_rx_buffer(struct rpmsg_endpoint *ept, void *rxbuf);
  * @len:  Pointer to store tx buffer size
  * @wait: Boolean, wait or not for buffer to become available
  *
- * @return The tx buffer address on success and NULL on failure
+ * @return:
+ *   - RPMSG_SUCCESS on success
+ *   - RPMSG_ERR_PERM if service not implemented
+ *   - RPMSG_ERR_NO_MEM is the TX buffer recycler if full.
  *
  * @see rpmsg_send_offchannel_nocopy
  * @see rpmsg_sendto_nocopy
@@ -333,6 +339,26 @@ void rpmsg_release_rx_buffer(struct rpmsg_endpoint *ept, void *rxbuf);
  */
 void *rpmsg_get_tx_payload_buffer(struct rpmsg_endpoint *ept,
 				  uint32_t *len, int wait);
+
+/**
+ * @brief Releases unused buffer.
+ *
+ * This API can be called at process context when the Tx buffer reserved by
+ * rpmsg_get_tx_payload_buffer needs to be released without been send to the
+ * remote side.
+ *
+ * @ept: the rpmsg endpoint
+ * @txbuf: tx buffer with message payload
+ *
+ * @return:
+ *   - RPMSG_SUCCESS on success
+ *   - RPMSG_ERR_PARAM on invalid parameter
+ *   - RPMSG_ERR_PERM if service not implemented
+ *   - RPMSG_ERR_NO_MEM is the TX buffer recycler if full.
+ *
+ * @see rpmsg_get_tx_payload_buffer
+ */
+int rpmsg_release_tx_buffer(struct rpmsg_endpoint *ept, void *txbuf);
 
 /**
  * rpmsg_send_offchannel_nocopy() - send a message in tx buffer reserved by
