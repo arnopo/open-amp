@@ -25,6 +25,21 @@
 /* Time to wait - In multiple of 1 msecs. */
 #define RPMSG_TICKS_PER_INTERVAL                1000
 
+/**
+ * struct vbuff_reclaimer_t - vring buffer recycler
+ *
+ * This structure is used by the rpmsg virtio to store unused virtio buffer, as the
+ * virtqueue structure has been already updated and memory allocated.
+ *
+ * @desc_idx: the size of the buffer used to send data from host to remote
+ * @addr: address of the virtio buffer
+ * @node: node in reclaimer list.
+ */
+struct vbuff_reclaimer_t {
+	uint16_t idx;
+	void *addr;
+	struct metal_list node;
+};
 
 /* Default configuration */
 #ifndef VIRTIO_DEVICE_ONLY
@@ -157,25 +172,45 @@ static void *rpmsg_virtio_get_tx_buffer(struct rpmsg_virtio_device *rvdev,
 					uint32_t *len, uint16_t *idx)
 {
 	unsigned int role = rpmsg_virtio_get_role(rvdev);
+	struct metal_list *node;
+	struct vbuff_reclaimer_t *r_desc;
 	void *data = NULL;
 
+	/* Try first to recycle a buffer that has been freed without been used */
+	node = metal_list_first(&rvdev->reclaimer);
+	if (node) {
+		r_desc = metal_container_of(node, struct vbuff_reclaimer_t, node);
+		metal_list_del(node);
+		*idx = r_desc->idx;
+		data = r_desc->addr;
+
 #ifndef VIRTIO_DEVICE_ONLY
-	if (role == RPMSG_HOST) {
-		data = virtqueue_get_buffer(rvdev->svq, len, idx);
-		if (!data && rvdev->svq->vq_free_cnt) {
-			data = rpmsg_virtio_shm_pool_get_buffer(rvdev->shpool,
-					rvdev->config.h2r_buf_size);
+		if (role == RPMSG_HOST)
 			*len = rvdev->config.h2r_buf_size;
-			*idx = 0;
+#endif /*!VIRTIO_DEVICE_ONLY*/
+#ifndef VIRTIO_DRIVER_ONLY
+		if (role == RPMSG_REMOTE)
+			*len = virtqueue_get_buffer_length(rvdev->svq, *idx);
+#endif /*!VIRTIO_DRIVER_ONLY*/
+	} else {
+
+#ifndef VIRTIO_DEVICE_ONLY
+		if (role == RPMSG_HOST) {
+			data = virtqueue_get_buffer(rvdev->svq, len, idx);
+			if (!data && rvdev->svq->vq_free_cnt) {
+				data = rpmsg_virtio_shm_pool_get_buffer(rvdev->shpool,
+									rvdev->config.h2r_buf_size);
+				*len = rvdev->config.h2r_buf_size;
+				*idx = 0;
+			}
 		}
-	}
 #endif /*!VIRTIO_DEVICE_ONLY*/
 
 #ifndef VIRTIO_DRIVER_ONLY
-	if (role == RPMSG_REMOTE) {
-		data = virtqueue_get_available_buffer(rvdev->svq, idx, len);
-	}
+		if (role == RPMSG_REMOTE)
+			data = virtqueue_get_available_buffer(rvdev->svq, idx, len);
 #endif /*!VIRTIO_DRIVER_ONLY*/
+	}
 
 	return data;
 }
@@ -412,6 +447,33 @@ static int rpmsg_virtio_send_offchannel_nocopy(struct rpmsg_device *rdev,
 	metal_mutex_release(&rdev->lock);
 
 	return len;
+}
+
+static int rpmsg_virtio_release_tx_buffer(struct rpmsg_device *rdev, void *rxbuf)
+{
+	struct rpmsg_virtio_device *rvdev;
+	struct rpmsg_hdr *rp_hdr;
+	struct vbuff_reclaimer_t *r_desc = rxbuf;
+	uint16_t idx;
+
+	rvdev = metal_container_of(rdev, struct rpmsg_virtio_device, rdev);
+
+	metal_mutex_acquire(&rdev->lock);
+
+	rp_hdr = RPMSG_LOCATE_HDR(rxbuf);
+
+	/* The reserved field contains buffer index */
+	idx = rp_hdr->reserved;
+
+	/* Reuse the rpmsg payload to temporary store the vbuff_reclaimer_t structure */
+
+	r_desc->idx = idx;
+	r_desc->addr = rp_hdr;
+	metal_list_add_tail(&rvdev->reclaimer, &r_desc->node);
+
+	metal_mutex_release(&rdev->lock);
+
+	return RPMSG_SUCCESS;
 }
 
 /**
@@ -655,6 +717,7 @@ int rpmsg_init_vdev_with_config(struct rpmsg_virtio_device *rvdev,
 	rdev->ops.release_rx_buffer = rpmsg_virtio_release_rx_buffer;
 	rdev->ops.get_tx_payload_buffer = rpmsg_virtio_get_tx_payload_buffer;
 	rdev->ops.send_offchannel_nocopy = rpmsg_virtio_send_offchannel_nocopy;
+	rdev->ops.release_tx_buffer = rpmsg_virtio_release_tx_buffer;
 	role = rpmsg_virtio_get_role(rvdev);
 
 #ifndef VIRTIO_DEVICE_ONLY
@@ -716,6 +779,7 @@ int rpmsg_init_vdev_with_config(struct rpmsg_virtio_device *rvdev,
 	}
 #endif /*!VIRTIO_DRIVER_ONLY*/
 	rvdev->shbuf_io = shm_io;
+	metal_list_init(&rvdev->reclaimer);
 
 	/* Create virtqueues for remote device */
 	status = rpmsg_virtio_create_virtqueues(rvdev, 0, RPMSG_NUM_VRINGS,
