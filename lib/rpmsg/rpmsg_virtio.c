@@ -159,23 +159,41 @@ static void *rpmsg_virtio_get_tx_buffer(struct rpmsg_virtio_device *rvdev,
 	unsigned int role = rpmsg_virtio_get_role(rvdev);
 	void *data = NULL;
 
+	/* Try first to recycle a buffer that has been freed without been used */
+	if (rvdev->desc_recycler_cnt) {
+		*idx = rvdev->desc_recycler[--rvdev->desc_recycler_cnt].desc_idx;
+
 #ifndef VIRTIO_DEVICE_ONLY
-	if (role == RPMSG_HOST) {
-		data = virtqueue_get_buffer(rvdev->svq, len, idx);
-		if (!data && rvdev->svq->vq_free_cnt) {
-			data = rpmsg_virtio_shm_pool_get_buffer(rvdev->shpool,
-					rvdev->config.h2r_buf_size);
+		if (role == RPMSG_HOST) {
 			*len = rvdev->config.h2r_buf_size;
-			*idx = 0;
+			data = rvdev->desc_recycler[rvdev->desc_recycler_cnt].addr;
 		}
-	}
+#endif /*!VIRTIO_DEVICE_ONLY*/
+#ifndef VIRTIO_DRIVER_ONLY
+		if (role == RPMSG_REMOTE) {
+			*len = virtqueue_get_buffer_length(rvdev->svq, *idx);
+			data = virtqueue_get_buffer_addr(rvdev->svq, *idx);
+		}
+#endif /*!VIRTIO_DRIVER_ONLY*/
+	} else {
+
+#ifndef VIRTIO_DEVICE_ONLY
+		if (role == RPMSG_HOST) {
+			data = virtqueue_get_buffer(rvdev->svq, len, idx);
+			if (!data && rvdev->svq->vq_free_cnt) {
+				data = rpmsg_virtio_shm_pool_get_buffer(rvdev->shpool,
+									rvdev->config.h2r_buf_size);
+				*len = rvdev->config.h2r_buf_size;
+				*idx = 0;
+			}
+		}
 #endif /*!VIRTIO_DEVICE_ONLY*/
 
 #ifndef VIRTIO_DRIVER_ONLY
-	if (role == RPMSG_REMOTE) {
-		data = virtqueue_get_available_buffer(rvdev->svq, idx, len);
-	}
+		if (role == RPMSG_REMOTE)
+			data = virtqueue_get_available_buffer(rvdev->svq, idx, len);
 #endif /*!VIRTIO_DRIVER_ONLY*/
+	}
 
 	return data;
 }
@@ -412,6 +430,40 @@ static int rpmsg_virtio_send_offchannel_nocopy(struct rpmsg_device *rdev,
 	metal_mutex_release(&rdev->lock);
 
 	return len;
+}
+
+static int rpmsg_virtio_release_tx_buffer(struct rpmsg_device *rdev, void *rxbuf)
+{
+	struct rpmsg_virtio_device *rvdev;
+	struct rpmsg_hdr *rp_hdr;
+	int status = RPMSG_SUCCESS;
+	uint16_t idx;
+
+	rvdev = metal_container_of(rdev, struct rpmsg_virtio_device, rdev);
+
+	metal_mutex_acquire(&rdev->lock);
+
+	if (rvdev->desc_recycler_cnt == RPMSG_RECYCLER_SIZE) {
+		status = RPMSG_ERR_NO_MEM;
+		goto ret_status;
+	}
+
+	rp_hdr = RPMSG_LOCATE_HDR(rxbuf);
+
+	/* The reserved field contains buffer index */
+	idx = rp_hdr->reserved;
+
+	rvdev->desc_recycler[rvdev->desc_recycler_cnt].desc_idx = idx;
+#ifndef VIRTIO_SLAVE_ONLY
+	if (rpmsg_virtio_get_role(rvdev) == RPMSG_HOST)
+		rvdev->desc_recycler[rvdev->desc_recycler_cnt].addr = rp_hdr;
+#endif /*!VIRTIO_SLAVE_ONLY*/
+	rvdev->desc_recycler_cnt++;
+
+ret_status:
+	metal_mutex_release(&rdev->lock);
+
+	return status;
 }
 
 /**
@@ -653,6 +705,7 @@ int rpmsg_init_vdev_with_config(struct rpmsg_virtio_device *rvdev,
 	rdev->ops.release_rx_buffer = rpmsg_virtio_release_rx_buffer;
 	rdev->ops.get_tx_payload_buffer = rpmsg_virtio_get_tx_payload_buffer;
 	rdev->ops.send_offchannel_nocopy = rpmsg_virtio_send_offchannel_nocopy;
+	rdev->ops.release_tx_buffer = rpmsg_virtio_release_tx_buffer;
 	role = rpmsg_virtio_get_role(rvdev);
 
 #ifndef VIRTIO_DEVICE_ONLY
@@ -714,6 +767,7 @@ int rpmsg_init_vdev_with_config(struct rpmsg_virtio_device *rvdev,
 	}
 #endif /*!VIRTIO_DRIVER_ONLY*/
 	rvdev->shbuf_io = shm_io;
+	rvdev->desc_recycler_cnt = 0;
 
 	/* Create virtqueues for remote device */
 	status = rpmsg_virtio_create_virtqueues(rvdev, 0, RPMSG_NUM_VRINGS,

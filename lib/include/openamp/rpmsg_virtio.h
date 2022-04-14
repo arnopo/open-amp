@@ -26,6 +26,10 @@ extern "C" {
 #define RPMSG_BUFFER_SIZE	(512)
 #endif
 
+#ifndef RPMSG_RECYCLER_SIZE
+#define RPMSG_RECYCLER_SIZE     (10)  /* Arbitrary value as can depend on number of used buffer */
+#endif
+
 /* The feature bitmap for virtio rpmsg */
 #define VIRTIO_RPMSG_F_NS	0 /* RP supports name service notifications */
 
@@ -56,6 +60,22 @@ struct rpmsg_virtio_config {
 };
 
 /**
+ * struct desc_recycler_t - vring buffer recycler
+ *
+ * This structure is used by the rpmsg virtio to store unused virtio buffer, as the
+ * virtqueue structure has been already updated and memory allocated.
+ *
+ * @desc_idx: the size of the buffer used to send data from host to remote
+ * @addr: address of the virtio buffer
+ */
+struct desc_recycler_t {
+	uint16_t desc_idx;
+#ifndef VIRTIO_SLAVE_ONLY
+	void *addr;
+#endif /*!VIRTIO_SLAVE_ONLY*/
+};
+
+/**
  * struct rpmsg_virtio_device - representation of a rpmsg device based on virtio
  * @rdev: rpmsg device, first property in the struct
  * @config: structure containing virtio configuration
@@ -64,6 +84,8 @@ struct rpmsg_virtio_config {
  * @svq: pointer to send virtqueue
  * @shbuf_io: pointer to the shared buffer I/O region
  * @shpool: pointer to the shared buffers pool
+ * @desc_recycler_cnt: number of vring descriptor to recycle for rpmsg buffers
+ * @desc_recycler: table of descriptor index that can be recycled
  */
 struct rpmsg_virtio_device {
 	struct rpmsg_device rdev;
@@ -73,6 +95,8 @@ struct rpmsg_virtio_device {
 	struct virtqueue *svq;
 	struct metal_io_region *shbuf_io;
 	struct rpmsg_virtio_shm_pool *shpool;
+	uint32_t desc_recycler_cnt;
+	struct desc_recycler_t desc_recycler[RPMSG_RECYCLER_SIZE];
 };
 
 #define RPMSG_REMOTE	VIRTIO_DEV_DEVICE
