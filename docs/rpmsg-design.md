@@ -14,6 +14,7 @@ running on two processors.
 ![Creating Endpoint Dynamically with Name Service](img/coprocessor-rpmsg-ns-dynamic.png)
 
 ## RPMsg User APIs
+### RPMsg virtio device APIs
 * RPMsg virtio master to initialize the shared buffers pool(RPMsg virtio slave
   doesn't need to use this API):
   ```
@@ -36,6 +37,7 @@ running on two processors.
   ```
   struct rpmsg_device *rpmsg_virtio_get_rpmsg_device(struct rpmsg_virtio_device *rvdev)
   ```
+### RPMsg virtio endpoint APIs
 * Create RPMsg endpoint:
   ```
   int rpmsg_create_ept(struct rpmsg_endpoint *ept,
@@ -52,6 +54,7 @@ running on two processors.
   ```
   int is_rpmsg_ept_ready(struct rpmsg_endpoint *ept)
   ```
+### RPMsg messaging APIs
 * Send message with RPMsg endpoint default binding:
   ```
   int rpmsg_send(struct rpmsg_endpoint *ept, const void *data, int len)
@@ -86,6 +89,43 @@ running on two processors.
   int rpmsg_trysend_offchannel(struct rpmsg_endpoint *ept,
 			       uint32_t src, uint32_t dst,
 			       const void *data, int len)`
+  ```
+
+* Hold the rx buffer for usage outside the receive callback:
+  ```
+  void rpmsg_hold_rx_buffer(struct rpmsg_endpoint *ept, void *rxbuf)
+  ```
+
+* Release the rx buffer held thanks to the rpmsg_hold_rx_buffer() function:
+  ```
+  void rpmsg_release_rx_buffer(struct rpmsg_endpoint *ept, void *rxbuf)
+
+  ```
+* Gets the tx buffer for message payload.
+  ```
+  void *rpmsg_get_tx_payload_buffer(struct rpmsg_endpoint *ept,
+          uint32_t *len, int wait)
+  ```
+
+* Using a buffer obtained obtained by calling the rpmsg_get_tx_payload_buffer() function,
+    Send a message with the RPMsg endpoint default binding:
+  ```
+  int rpmsg_send_nocopy(struct rpmsg_endpoint *ept,
+            const void *data, int len)
+  ```
+
+/* Using a buffer obtained obtained by calling the rpmsg_get_tx_payload_buffer() function,
+    send a message with RPMsg endpoint, specifying the destination address:
+  ```
+  int rpmsg_sendto_nocopy(struct rpmsg_endpoint *ept,
+              const void *data, int len, uint32_t dst)
+  ```
+
+* UUsing a buffer obtained obtained by calling the rpmsg_get_tx_payload_buffer() function,
+    send a message with RPMsg endpoint using explicit source and destination addresses:
+  ```
+  int rpmsg_send_offchannel_nocopy(struct rpmsg_endpoint *ept, uint32_t src,
+          uint32_t dst, const void *data, int len)
   ```
 
 * Releases unused Tx buffer reserved by rpmsg_get_tx_payload_buffer() function:
