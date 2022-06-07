@@ -97,6 +97,7 @@ __deprecated static inline int deprecated_virtio_dev_slave(void)
 struct virtio_device_id {
 	uint32_t device;
 	uint32_t vendor;
+	uint32_t version;
 };
 
 /*
@@ -118,6 +119,52 @@ struct virtio_device_id {
  */
 #define VIRTIO_TRANSPORT_F_START      28
 #define VIRTIO_TRANSPORT_F_END        32
+
+#ifdef VIRTIO_DEBUG
+#include <metal/log.h>
+
+#define VIRTIO_ASSERT(_exp, _msg) do { \
+		if (!(_exp)) { \
+			metal_log(METAL_LOG_EMERGENCY, \
+				  "FATAL: %s - "_msg, __func__); \
+			metal_assert(_exp); \
+		} \
+	} while (0)
+#else
+#define VIRTIO_ASSERT(_exp, _msg) metal_assert(_exp)
+#endif /* VIRTIO_DEBUG */
+
+/**
+ * @cond INTERNAL_HIDDEN
+ *
+ * For internal use only, skip these in public documentation.
+ */
+#define VRING_ALIGNMENT           4096
+
+#define VIRTIO_RING_SIZE(n, align) \
+	(( \
+		( \
+		sizeof(struct vring_desc) * n + \
+		sizeof(struct vring_avail) + \
+		sizeof(uint16_t) * (n + 1) + \
+		align - 1 \
+		) \
+		& ~(align - 1) \
+	) + \
+	sizeof(struct vring_used) + \
+	sizeof(struct vring_used_elem) * n + sizeof(uint16_t))
+
+#define VRING_DECLARE(name, n, align) \
+static char __vrbuf_##name[VIRTIO_RING_SIZE(n, align)] __aligned(VRING_ALIGNMENT); \
+static struct vring __vring_##name = { \
+	.desc = (void *)__vrbuf_##name, \
+	.avail = (void *)((unsigned long)__vrbuf_##name + n * sizeof(struct vring_desc)), \
+	.used = (void *)((unsigned long)__vrbuf_##name + ((n * sizeof(struct vring_desc) + \
+		(n + 1) * sizeof(uint16_t) + align - 1) & ~(align - 1))), \
+}
+/**
+ * @endcond
+ */
 
 typedef void (*virtio_dev_reset_cb)(struct virtio_device *vdev);
 
@@ -199,6 +246,110 @@ struct virtio_dispatch {
 int virtio_create_virtqueues(struct virtio_device *vdev, unsigned int flags,
 			     unsigned int nvqs, const char *names[],
 			     vq_callback callbacks[]);
+
+/**
+ * @brief Get device ID.
+ *
+ * @param[in] dev Pointer to device structure.
+ *
+ * @return Device ID value.
+ */
+
+inline uint32_t virtio_get_devid(const struct virtio_device *vdev)
+{
+	if (!vdev)
+		return 0;
+	return vdev->id.device;
+}
+
+/**
+ * @brief Retrieve device status.
+ *
+ * @param[in] dev Pointer to device structure.
+ *
+ * @return status of the device.
+ */
+
+inline uint8_t virtio_device_get_status(struct virtio_device *vdev)
+{
+	return vdev->func->get_status(vdev);
+}
+
+/**
+ * @brief Set device status.
+ *
+ * @param[in] dev Pointer to device structure.
+ * @param[in] status Value to be set as device status.
+ */
+
+inline void virtio_device_set_status(struct virtio_device *vdev, uint8_t status)
+{
+	vdev->func->set_status(vdev, status);
+}
+
+/**
+ * @brief Retrieve configuration data from the device.
+ *
+ * @param[in] dev Pointer to device structure.
+ * @param[in] offset Offset of the data within the configuration area.
+ * @param[in] dst Address of the buffer that will hold the data.
+ * @param[in] len Length of the data to be retrieved.
+ */
+
+inline void virtio_device_read_config(struct virtio_device *vdev,
+		 uint32_t offset, void *dst, int length)
+{
+	vdev->func->read_config(vdev, offset, dst, length);
+}
+
+/**
+ * @brief Write configuration data to the device.
+ *
+ * @param[in] dev Pointer to device structure.
+ * @param[in] offset Offset of the data within the configuration area.
+ * @param[in] src Address of the buffer that holds the data to write.
+ * @param[in] len Length of the data to be written.
+ */
+inline void virtio_device_write_config(struct virtio_device *vdev,
+		 uint32_t offset, void *src, int length)
+{
+	vdev->func->write_config(vdev, offset, src, length);
+}
+
+/**
+ * @brief Retrieve features supported by both the VIRTIO driver and the VIRTIO device.
+ *
+ * @param[in] dev Pointer to device structure.
+ *
+ * @return Features supported by both the driver and the device as a bitfield.
+ */
+
+inline uint32_t virtio_device_get_features(struct virtio_device *vdev)
+{
+	return vdev->func->get_features(vdev);
+}
+
+/**
+ * @brief Set features supported by the VIRTIO driver.
+ *
+ * @param[in] dev Pointer to device structure.
+ * @param[in] features Features supported by the driver as a bitfield.
+ */
+
+inline void virtio_device_set_features(struct virtio_device *vdev, uint32_t features)
+{
+	return vdev->func->set_features(vdev, features);
+}
+
+/**
+ * @brief Reset virtio device.
+ *
+ * @param[in] vdev Pointer to virtio_device structure.
+ */
+inline void virtio_device_reset(struct virtio_device *vdev)
+{
+	vdev->func->reset_device(vdev);
+}
 
 #if defined __cplusplus
 }
