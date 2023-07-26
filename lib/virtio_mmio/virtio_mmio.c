@@ -20,11 +20,11 @@ extern uint32_t virtio_get_devid(const struct virtio_device *vdev);
 extern uint8_t virtio_device_get_status(struct virtio_device *vdev);
 extern void virtio_device_set_status(struct virtio_device *vdev, uint8_t status);
 extern void virtio_device_read_config(struct virtio_device *vdev,
-			       uint32_t offset, void *dst, int length);
+				      uint32_t offset, void *dst, int length);
 extern void virtio_device_write_config(struct virtio_device *vdev,
-				uint32_t offset, void *src, int length);
-extern uint32_t virtio_device_get_features(struct virtio_device *vdev);
-extern void virtio_device_set_features(struct virtio_device *vdev, uint32_t features);
+				       uint32_t offset, void *src, int length);
+extern uint64_t virtio_device_get_features(struct virtio_device *vdev);
+extern void virtio_device_set_features(struct virtio_device *vdev, uint64_t features);
 extern void virtio_device_reset(struct virtio_device *vdev);
 
 void virtio_mmio_isr(struct virtio_device *vdev);

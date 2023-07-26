@@ -74,37 +74,41 @@ struct virtio_device_id {
  * Generate interrupt when the virtqueue ring is
  * completely used, even if we've suppressed them.
  */
-#define VIRTIO_F_NOTIFY_ON_EMPTY (1 << 24)
-
-/*
- * The guest should never negotiate this feature; it
- * is used to detect faulty drivers.
- */
-#define VIRTIO_F_BAD_FEATURE (1 << 30)
+#define VIRTIO_F_NOTIFY_ON_EMPTY	24
 
 /*
  * Some VirtIO feature bits (currently bits 28 through 31) are
  * reserved for the transport being used (eg. virtio_ring), the
  * rest are per-device feature bits.
  */
-#define VIRTIO_TRANSPORT_F_START      28
-#define VIRTIO_TRANSPORT_F_END        32
+
+/*
+ * The guest should never negotiate this feature; it
+ * is used to detect faulty drivers.
+ */
+#define VIRTIO_F_BAD_FEATURE		30
 
 /*
  * Version 1 compliant
  */
-#define VIRTIO_F_VERSION_1 32
+#define VIRTIO_F_VERSION_1		32
 
 /*
  * The device can be used on a platform where device access to data
  * in memory is limited and/or translated.
  */
-#define VIRTIO_F_ACCESS_PLATFORM      33
+#define VIRTIO_F_ACCESS_PLATFORM	33
 
 /*
  * Packed virtqueue layout
  */
-#define VIRTIO_F_RING_PACKED          34
+#define VIRTIO_F_RING_PACKED		34
+
+/** Check if a bit is set */
+#define isSet(BIT, VALUE) (VALUE & (1 << BIT))
+
+/** Get a uint64_t with bit X set */
+#define bit64(X) ((uint64_t)1 << X)
 
 #ifdef VIRTIO_DEBUG
 #include <metal/log.h>
@@ -177,12 +181,19 @@ void virtio_describe(struct virtio_device *dev, const char *msg,
  */
 
 struct virtio_dispatch {
-	uint8_t (*get_status)(struct virtio_device *dev);
-	void (*set_status)(struct virtio_device *dev, uint8_t status);
-	uint32_t (*get_features)(struct virtio_device *dev);
-	void (*set_features)(struct virtio_device *dev, uint32_t feature);
-	uint32_t (*negotiate_features)(struct virtio_device *dev,
-				       uint32_t features);
+	int (*create_virtqueues)(struct virtio_device *vdev,
+				 unsigned int flags,
+				 unsigned int nvqs, const char *names[],
+				 vq_callback callbacks[]);
+	void (*delete_virtqueues)(struct virtio_device *vdev);
+	int (*configure_device)(struct virtio_device *vdev, uint64_t device_features,
+				uint32_t device_type, int nvqs, int vring_size);
+	uint8_t (*get_status)(struct virtio_device *vdev);
+	void (*set_status)(struct virtio_device *vdev, uint8_t status);
+	uint64_t (*get_features)(struct virtio_device *vdev);
+	void (*set_features)(struct virtio_device *vdev, uint64_t feature);
+	uint64_t (*negotiate_features)(struct virtio_device *vdev,
+				       uint64_t features);
 
 	/*
 	 * Read/write a variable amount from the device specific (ie, network)
@@ -268,8 +279,7 @@ inline void virtio_device_write_config(struct virtio_device *vdev,
  *
  * @return Features supported by both the driver and the device as a bitfield.
  */
-
-inline uint32_t virtio_device_get_features(struct virtio_device *vdev)
+inline uint64_t virtio_device_get_features(struct virtio_device *vdev)
 {
 	return vdev->func->get_features(vdev);
 }
@@ -283,7 +293,7 @@ inline uint32_t virtio_device_get_features(struct virtio_device *vdev)
  * @return N/A.
  */
 
-inline void virtio_device_set_features(struct virtio_device *vdev, uint32_t features)
+inline void virtio_device_set_features(struct virtio_device *vdev, uint64_t features)
 {
 	return vdev->func->set_features(vdev, features);
 }
