@@ -13,5 +13,6 @@
 #include <openamp/remoteproc.h>
 #include <openamp/remoteproc_virtio.h>
 #include <openamp/virtio_mmio_dev.h>
+#include <openamp/virtio_i2c_dev.h>
 
 #endif				/* OPEN_AMP_H_ */
