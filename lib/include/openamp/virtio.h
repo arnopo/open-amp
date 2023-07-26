@@ -15,26 +15,69 @@ extern "C" {
 #endif
 
 /* VirtIO device IDs. */
-#define VIRTIO_ID_NETWORK    0x01UL
-#define VIRTIO_ID_BLOCK      0x02UL
-#define VIRTIO_ID_CONSOLE    0x03UL
-#define VIRTIO_ID_ENTROPY    0x04UL
-#define VIRTIO_ID_BALLOON    0x05UL
-#define VIRTIO_ID_IOMEMORY   0x06UL
-#define VIRTIO_ID_RPMSG      0x07UL /* remote processor messaging */
-#define VIRTIO_ID_SCSI       0x08UL
-#define VIRTIO_ID_9P         0x09UL
-#define VIRTIO_ID_SCMI       0x20UL
-#define VIRTIO_DEV_ANY_ID    (-1)UL
+#define VIRTIO_ID_NETWORK		1UL
+#define VIRTIO_ID_BLOCK			2UL
+#define VIRTIO_ID_CONSOLE		3UL
+#define VIRTIO_ID_ENTROPY		4UL
+#define VIRTIO_ID_BALLOON		5UL
+#define VIRTIO_ID_IOMEMORY		6UL
+#define VIRTIO_ID_RPMSG			7UL /* remote processor messaging */
+#define VIRTIO_ID_SCSI			8UL
+#define VIRTIO_ID_9P			9UL
+#define VIRTIO_ID_MAC80211_WLAN		10UL
+#define VIRTIO_ID_RPROC_SERIAL		11UL
+#define VIRTIO_ID_CAIF			12UL
+#define VIRTIO_ID_MEMORY_BALLOON	13UL
+#define VIRTIO_ID_GPU			16UL
+#define VIRTIO_ID_CLOCK			17UL
+#define VIRTIO_ID_INPUT			18UL
+#define VIRTIO_ID_VSOCK			19UL
+#define VIRTIO_ID_CRYPTO		20UL
+#define VIRTIO_ID_SIGNAL_DIST		21UL
+#define VIRTIO_ID_PSTORE		22UL
+#define VIRTIO_ID_IOMMU			23UL
+#define VIRTIO_ID_MEM			24UL
+#define VIRTIO_ID_SOUND			25UL
+#define VIRTIO_ID_FS			26UL
+#define VIRTIO_ID_PMEM			27UL
+#define VIRTIO_ID_RPMB			28UL
+#define VIRTIO_ID_MAC80211_HWSIM	29UL
+#define VIRTIO_ID_VIDEO_ENCODER		30UL
+#define VIRTIO_ID_VIDEO_DECODER		31UL
+#define VIRTIO_ID_SCMI			32UL
+#define VIRTIO_ID_NITRO_SEC_MOD		33UL
+#define VIRTIO_ID_I2C_ADAPTER		34UL
+#define VIRTIO_ID_WATCHDOG		35UL
+#define VIRTIO_ID_CAN			36UL
+#define VIRTIO_ID_PARAM_SERV		38UL
+#define VIRTIO_ID_AUDIO_POLICY		39UL
+#define VIRTIO_ID_BT			40UL
+#define VIRTIO_ID_GPIO			41UL
+#define VIRTIO_ID_RDMA			42UL
+#define VIRTIO_DEV_ANY_ID		-1UL
 
 /* Status byte for guest to report progress. */
-#define VIRTIO_CONFIG_STATUS_ACK       0x01
-#define VIRTIO_CONFIG_STATUS_DRIVER    0x02
-#define VIRTIO_CONFIG_STATUS_DRIVER_OK 0x04
-#define VIRTIO_CONFIG_FEATURES_OK      0x08
-#define VIRTIO_CONFIG_STATUS_NEEDS_RESET 0x40
-#define VIRTIO_CONFIG_STATUS_FAILED    0x80
+/* the device is reset */
+#define VIRTIO_CONFIG_STATUS_RESET		0x00
+/* guest OS has found the device and recognized it as a valid virtio device */
+#define VIRTIO_CONFIG_STATUS_ACK		0x01
+/* guest OS knows how to drive the device */
+#define VIRTIO_CONFIG_STATUS_DRIVER		0x02
+/* driver is set up and ready to drive the device */
+#define VIRTIO_CONFIG_STATUS_DRIVER_OK		0x04
+/* driver has acknowledged all the features it understands */
+#define VIRTIO_CONFIG_STATUS_FEATURES_OK	0x08
+/* EXPERIMENTAL device is not yet ready and shouldn't be reset or initialized */
+#define VIRTIO_CONFIG_STATUS_NOT_READY		0x20
+/* device has experienced an error from which it can’t recover */
+#define VIRTIO_CONFIG_STATUS_NEEDS_RESET	0x40
+/* something went wrong in the guest, and it has given up on the device */
+#define VIRTIO_CONFIG_STATUS_FAILED		0x80
 
+#define VIRTIO_CONFIG_STATUS_READY		(VIRTIO_CONFIG_STATUS_ACK |		\
+						VIRTIO_CONFIG_STATUS_DRIVER |		\
+						VIRTIO_CONFIG_STATUS_DRIVER_OK |	\
+						VIRTIO_CONFIG_STATUS_FEATURES_OK)
 /* Virtio device role */
 #define VIRTIO_DEV_DRIVER	0UL
 #define VIRTIO_DEV_DEVICE	1UL
@@ -151,7 +194,6 @@ struct virtio_vring_info {
  * Structure definition for virtio devices for use by the
  * applications/drivers
  */
-
 struct virtio_device {
 	uint32_t notifyid; /**< unique position on the virtio bus */
 	struct virtio_device_id id; /**< the device type identification
@@ -179,7 +221,6 @@ void virtio_describe(struct virtio_device *dev, const char *msg,
  * paper.
  * Drivers are expected to implement these functions in their respective codes.
  */
-
 struct virtio_dispatch {
 	int (*create_virtqueues)(struct virtio_device *vdev,
 				 unsigned int flags,
@@ -219,7 +260,6 @@ int virtio_create_virtqueues(struct virtio_device *vdev, unsigned int flags,
  *
  * @return status of the device.
  */
-
 inline uint8_t virtio_device_get_status(struct virtio_device *vdev)
 {
 	return vdev->func->get_status(vdev);
@@ -233,7 +273,6 @@ inline uint8_t virtio_device_get_status(struct virtio_device *vdev)
  *
  * @return N/A.
  */
-
 inline void virtio_device_set_status(struct virtio_device *vdev, uint8_t status)
 {
 	vdev->func->set_status(vdev, status);
@@ -251,7 +290,7 @@ inline void virtio_device_set_status(struct virtio_device *vdev, uint8_t status)
  */
 
 inline void virtio_device_read_config(struct virtio_device *vdev,
-		 uint32_t offset, void *dst, int length)
+				      uint32_t offset, void *dst, int length)
 {
 	vdev->func->read_config(vdev, offset, dst, length);
 }
@@ -267,7 +306,7 @@ inline void virtio_device_read_config(struct virtio_device *vdev,
  * @return N/A.
  */
 inline void virtio_device_write_config(struct virtio_device *vdev,
-		 uint32_t offset, void *src, int length)
+				       uint32_t offset, void *src, int length)
 {
 	vdev->func->write_config(vdev, offset, src, length);
 }
