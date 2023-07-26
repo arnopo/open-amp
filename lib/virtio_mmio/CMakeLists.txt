@@ -1,5 +1,6 @@
 collect (PROJECT_LIB_SOURCES virtio_mmio.c)
 collect (PROJECT_LIB_SOURCES virtio_mmio_hvl.c)
+collect (PROJECT_LIB_SOURCES virtio_mmio_dev.c)
 collect (PROJECT_LIB_SOURCES virtio_rng.c)
 collect (PROJECT_LIB_SOURCES virtio_net.c)
 collect (PROJECT_LIB_SOURCES virtio_serial.c)
