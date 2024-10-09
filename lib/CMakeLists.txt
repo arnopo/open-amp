@@ -15,6 +15,10 @@ if (WITH_VIRTIO_MMIO_DRV)
 add_subdirectory (virtio_mmio)
 endif (WITH_VIRTIO_MMIO_DRV)
 
+if (WITH_VIRTIO_MSG)
+add_subdirectory (virtio_msg)
+endif (WITH_VIRTIO_MSG)
+
 if (WITH_PROXY)
   add_subdirectory (proxy)
   add_subdirectory (service/rpmsg/rpc)

@@ -92,6 +92,12 @@ else (NOT WITH_VQ_RX_EMPTY_NOTIFY)
   add_definitions(-DVQ_RX_EMPTY_NOTIFY=1)
 endif (NOT WITH_VQ_RX_EMPTY_NOTIFY)
 
+option (WITH_VIRTIO_MSG "Build with virtio msg support enabled" OFF)
+
+if (WITH_VIRTIO_MSG)
+  add_definitions(-DWITH_VIRTIO_MSG)
+endif (WITH_VIRTIO_MSG)
+
 option (WITH_DCACHE "Build with all cache operations enabled" OFF)
 
 if (WITH_DCACHE)
