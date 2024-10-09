@@ -12,5 +12,8 @@
 #include <openamp/rpmsg_virtio.h>
 #include <openamp/remoteproc.h>
 #include <openamp/remoteproc_virtio.h>
+#include <openamp/virtio_msg.h>
+#include <openamp/virtio_msg_bus.h>
+#include <openamp/virtio_i2c_dev.h>
 
 #endif				/* OPEN_AMP_H_ */
