@@ -11,6 +11,8 @@ on:
       - cmake/**
       - scripts/**
       - .github/**
+    required: true
+
 
 jobs:
   checkpatch_review:
