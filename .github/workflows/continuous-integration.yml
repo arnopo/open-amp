@@ -16,6 +16,7 @@ on:
       - docs/**
       - cmake/**
       - scripts/**
+    required: true
 
 jobs:
   platform_builds:
