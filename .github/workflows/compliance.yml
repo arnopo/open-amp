@@ -11,6 +11,11 @@ on:
       - cmake/**
       - scripts/**
       - .github/**
+  workflow_call:
+    inputs:
+      needs_context:
+        type: string
+        required: true
 
 jobs:
   checkpatch_review:
