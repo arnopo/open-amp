@@ -52,7 +52,7 @@ build_linux(){
 	cmake -Bbuild \
 		-DCMAKE_INCLUDE_PATH="$PROJECT_ROOT/libmetal/build/lib/include/;$PROJECT_ROOT/open-amp/build/lib/include/" \
 		-DCMAKE_LIBRARY_PATH="$PROJECT_ROOT/libmetal/build/lib/;$PROJECT_ROOT/open-amp/build/lib/" \
-		-DCMAKE_INSTALL_PREFIX=$PROJECT_ROOT/target  \
+		-DCMAKE_INSTALL_PREFIX=$PROJECT_ROOT/target  -DCMAKE_POLICY_VERSION_MINIMUM=3.16 \
 		-DCMAKE_C_FLAGS="-Werror -Wall -Wextra -Wshadow -Wunused-but-set-variable" || exit 1
 	make -C build install || exit 1
 	exit 0
