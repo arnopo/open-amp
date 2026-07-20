@@ -3,7 +3,7 @@
 readonly TARGET="$1"
 
 # Known good version for PR testing
-ZEPHYR_VERSION=v4.3.0
+ZEPHYR_VERSION=v4.4.0
 
 FREERTOS_ZIP_URL=https://cfhcable.dl.sourceforge.net/project/freertos/FreeRTOS/V10.0.1/FreeRTOSv10.0.1.zip
 
