@@ -97,8 +97,8 @@ build_zephyr(){
 	west init --mr $ZEPHYR_VERSION ./zephyrproject || exit 1
 	cd ./zephyrproject || exit 1
 	west update -n || exit 1
-	west zephyr-export || exit 1
 	west packages pip --install || exit 1
+	west zephyr-export || exit 1
 
 	echo  "Update zephyr OpenAMP repos"
 	#Update zephyr OpenAMP repos
