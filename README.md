@@ -152,6 +152,24 @@ information. Make sure your .gitconfig is set up correctly:
   git config --global user.name "first-name Last-Namer"
   git config --global user.email "yourmail@company.com"
   ```
+
+### Assisted-by
+When AI tools are used to contribute to the OpenAMP project, proper attribution helps
+track the evolving role of AI in the development process. Contributions should include
+an Assisted-by tag in the following format:
+
+Assisted-by: AGENT_NAME:MODEL_VERSION [TOOL1] [TOOL2]
+
+Where:
+
+AGENT_NAME is the name of the AI tool or framework
+MODEL_VERSION is the specific model version used
+[TOOL1] [TOOL2] are optional specialized analysis tools used, for example, coccinelle,
+sparse, and smatch
+Basic development tools (git, gcc, make, editors) should not be listed.
+
+Example: Assisted-by: Claude:claude-3-opus coccinelle sparse
+
 ### gitlint
 Before you submit a pull request to the project, verify your commit messages meet the requirements.
 The check can be  performed locally using the the gitlint command.
